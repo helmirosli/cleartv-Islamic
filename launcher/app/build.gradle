@@ -35,7 +35,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
-            signingConfig (rumahKs && file(rumahKs).exists()) ? signingConfigs.rumah : signingConfigs.debug
+            signingConfig((rumahKs && file(rumahKs).exists()) ? signingConfigs.rumah : signingConfigs.debug)
         }
     }
 
