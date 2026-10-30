@@ -25,6 +25,7 @@ import java.util.List;
  * "quiz_questions": 3                               questions per quiz
  * "parent_pin": "1234"                              4-digit PIN that opens them without a quiz
  * "children": [{"name": "Adik", "level": 1, "color": "#E58FD0"}, ...]
+ * "rumah_home": true | false                        Rumah TV's Home layout (default true)
  * "weather": true | false                           the weather on the next-azan card (default true)
  * "weather_lat": 2.69, "weather_lon": 101.75        where (default Sepang)
  * </pre>
@@ -51,11 +52,12 @@ final class RumahConfig {
     final int quizQuestions;
     final String parentPin;
     final List<Child> children;
+    final boolean home;
     final boolean weather;
     final double weatherLat, weatherLon;
 
     private RumahConfig(String wakeForAzan, boolean quiz, List<String> quizApps, int quizUnlockMinutes,
-                        int quizQuestions, String parentPin, List<Child> children,
+                        int quizQuestions, String parentPin, List<Child> children, boolean home,
                         boolean weather, double weatherLat, double weatherLon) {
         this.wakeForAzan = wakeForAzan;
         this.quiz = quiz;
@@ -64,6 +66,7 @@ final class RumahConfig {
         this.quizQuestions = quizQuestions;
         this.parentPin = parentPin;
         this.children = children;
+        this.home = home;
         this.weather = weather;
         this.weatherLat = weatherLat;
         this.weatherLon = weatherLon;
@@ -115,7 +118,7 @@ final class RumahConfig {
         return new RumahConfig(wake, o.optBoolean("quiz", true), Collections.unmodifiableList(apps),
                 clamp(o.optInt("quiz_unlock_minutes", 30), 5, 240),
                 clamp(o.optInt("quiz_questions", 3), 1, 10),
-                pin, Collections.unmodifiableList(kids),
+                pin, Collections.unmodifiableList(kids), o.optBoolean("rumah_home", true),
                 o.optBoolean("weather", true),
                 coord(o.optDouble("weather_lat", 2.69), -90, 90, 2.69),
                 coord(o.optDouble("weather_lon", 101.75), -180, 180, 101.75));

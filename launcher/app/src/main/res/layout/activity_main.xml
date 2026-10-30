@@ -93,8 +93,20 @@
                 <!-- The header texts use gravity left, not start: the launcher lays out left to right
                      (no supportsRtl), and with start a right-to-left script such as Arabic would move to the
                      right edge of these full-width lines instead of staying under the clock. -->
+                <!-- Rumah TV: the large clock, Malay and Hijri dates, weather and photo credit, in place of
+                     the clock row below when the Islamic theme is on (RumahHeaderView). -->
+                <com.gathin.tvhome.RumahHeaderView
+                    android:id="@+id/rumahHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:focusable="false"
+                    android:importantForAccessibility="no"
+                    android:visibility="gone" />
+
                 <!-- The clock keeps the place it had under the greeting that used to sit above it. -->
                 <LinearLayout
+                    android:id="@+id/clockRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -247,18 +259,34 @@
                 android:importantForAccessibility="yes"
                 android:visibility="gone" />
 
-            <!-- Rumah TV: the next-azan card (PrayerCardView) takes the prayer row's place when shown. -->
-            <com.gathin.tvhome.PrayerCardView
-                android:id="@+id/prayerCard"
-                android:layout_width="640dp"
-                android:layout_height="96dp"
+            <!-- Rumah TV: the next-azan card and the day's reminder, in the prayer row's place when shown. -->
+            <LinearLayout
+                android:id="@+id/rumahRow"
+                android:layout_width="match_parent"
+                android:layout_height="124dp"
                 android:layout_below="@id/leftBlock"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/prayer_bg"
-                android:focusable="false"
-                android:importantForAccessibility="yes"
-                android:visibility="gone" />
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.gathin.tvhome.PrayerCardView
+                    android:id="@+id/prayerCard"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/rumah_card"
+                    android:focusable="false"
+                    android:importantForAccessibility="yes" />
+
+                <com.gathin.tvhome.ReminderCardView
+                    android:id="@+id/reminderCard"
+                    android:layout_width="290dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="14dp"
+                    android:background="@drawable/rumah_card"
+                    android:focusable="false"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
         </RelativeLayout>
 
         <!-- The wrapper clips at the grid's edge; the grid itself must not clip so scaled tiles can overflow their cells. -->

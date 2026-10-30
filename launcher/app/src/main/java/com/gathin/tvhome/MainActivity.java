@@ -132,6 +132,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Today's prayer times under the clock (PrayerTimes); hidden while prayerZone is empty. */
     private TextView prayerRow;
     private PrayerCardView prayerCard;
+    /** Rumah TV's Home: the large header and the cards row, when the Islamic theme is on. */
+    private RumahHeaderView rumahHeader;
+    private View rumahRow;
+    private boolean rumahHome;
     private String prayerZone;
     private boolean prayerRefreshRunning;
     /** The azan over Home at prayer times; null when the theme turns it off or has no prayer_zone. */
@@ -322,7 +326,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         prayerRow = findViewById(R.id.prayerRow);
         prayerCard = findViewById(R.id.prayerCard);
+        rumahHeader = findViewById(R.id.rumahHeader);
+        rumahRow = findViewById(R.id.rumahRow);
         prayerZone = cfg.prayerZone;
+        rumahHome = !prayerZone.isEmpty() && RumahConfig.load(this).home;
+        if (rumahHome) {
+            // The header takes the clock row's place and names the picture itself, so the shelf over
+            // the dock and the network pill make way for the cards.
+            rumahHeader.setVisibility(View.VISIBLE);
+            findViewById(R.id.clockRow).setVisibility(View.GONE);
+            btnWifi.setVisibility(View.GONE);
+            heroShelf.setVisibility(View.INVISIBLE);
+        }
         if (cfg.azan && !prayerZone.isEmpty()) {
             azan = new Azan(root, () -> {
                 View f = getCurrentFocus();
@@ -1084,6 +1099,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         String title = about != null ? titleCase(about[0]) : null;
         String overview = about != null ? about[1] : "";
         String country = about != null && about.length > 2 ? about[2] : "";
+        if (rumahHome) rumahHeader.setPlace(title, country, overview);
         if (title == null ? placeName == null : title.equals(placeName)) return;
         placeName = title;
         placeText = overview;
@@ -1527,7 +1543,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         PrayerTimes.Day today = PrayerTimes.day(this, prayerZone, todayKey);
         if (today == null) {
             prayerRow.setVisibility(View.GONE);
-            prayerCard.setVisibility(View.GONE);
+            rumahRow.setVisibility(View.GONE);
             if (!prayerRefreshRunning && PrayerTimes.due(this, prayerZone, todayKey)) {
                 prayerRefreshRunning = true;
                 final String zone = prayerZone;
@@ -1576,11 +1592,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         b.append(PrayerTimes.NAMES[next >= 0 ? next : 0]).append(" ").append(PrayerTimes.countdown(left));
         b.setSpan(new android.text.style.ForegroundColorSpan(bright), start, b.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         prayerRow.setText(b);
-        // Rumah TV: the next-azan card in the row's place, with the weather.
-        prayerCard.update(today.minutes, next, nowMin, left, is24, Weather.line(this), today.hijri);
-        prayerCard.setVisibility(View.VISIBLE);
-        prayerRow.setVisibility(View.GONE);
-        Weather.refreshIfDue(this, this::updatePrayerTimes);
+        if (rumahHome) {
+            // Rumah TV: the next-azan card in the row's place; the Hijri date and the weather go up
+            // to the header.
+            prayerCard.update(today.minutes, next, nowMin, left, is24);
+            rumahHeader.setHijri(today.hijri);
+            rumahHeader.setWeather(Weather.parts(this));
+            rumahRow.setVisibility(View.VISIBLE);
+            prayerRow.setVisibility(View.GONE);
+            Weather.refreshIfDue(this, this::updatePrayerTimes);
+        } else {
+            prayerRow.setVisibility(View.VISIBLE);
+        }
     }
 
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */

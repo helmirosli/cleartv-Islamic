@@ -37,6 +37,31 @@ final class Weather {
         return p.getString("line", "");
     }
 
+    /**
+     * The last weather in three parts for Home's weather card: {"28°", "Mendung", "Hujan 70% sekitar
+     * 4 ptg"}, the last "" when no rain is expected; null when there is none.
+     */
+    static String[] parts(Context ctx) {
+        String line = line(ctx);
+        int deg = line.indexOf('°');
+        if (deg <= 0) return null;
+        String temp = line.substring(0, deg + 1);
+        String rest = line.substring(deg + 1).trim();
+        String rain = "";
+        int dot = rest.indexOf(" · ");
+        if (dot >= 0) {
+            String[] r = rest.substring(dot + 3).trim().split(" ");
+            rest = rest.substring(0, dot).trim();
+            // "hujan 70% 4 ptg" -> "Hujan 70% sekitar 4 ptg"
+            if (r.length >= 2) {
+                StringBuilder b = new StringBuilder("Hujan ").append(r[1]);
+                if (r.length >= 4) b.append(" sekitar ").append(r[2]).append(' ').append(r[3]);
+                rain = b.toString();
+            }
+        }
+        return new String[]{temp, rest, rain};
+    }
+
     /** Fetches in the background when due; {@code done} runs on the calling thread's looper after. */
     static void refreshIfDue(Context ctx, Runnable done) {
         RumahConfig rc = RumahConfig.load(ctx);
