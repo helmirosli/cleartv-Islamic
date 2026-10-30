@@ -372,7 +372,9 @@ public class QuizActivity extends Activity {
         t.setText(s);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
         t.setTextColor(color);
-        t.setTypeface(font, bold ? Typeface.BOLD : Typeface.NORMAL);
+        t.setTypeface(font);
+        // Outfit is a variable font: its weight comes from the axis, not from a bold style.
+        t.setFontVariationSettings("'wght' " + (bold ? 600 : 400));
         return t;
     }
 
@@ -387,8 +389,14 @@ public class QuizActivity extends Activity {
         bg.addState(new int[]{}, rounded(TILE, LINE, 16));
         b.setBackground(bg);
         b.setTextColor(new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{BG, TEXT}));
-        b.setOnFocusChangeListener((v, has) -> v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f)
-                .setDuration(120).start());
+        b.setOnFocusChangeListener((v, has) -> {
+            // The row and the page must not clip a tile while it grows.
+            for (android.view.ViewParent p = v.getParent(); p instanceof ViewGroup; p = p.getParent()) {
+                ((ViewGroup) p).setClipChildren(false);
+                ((ViewGroup) p).setClipToPadding(false);
+            }
+            v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f).setDuration(120).start();
+        });
         return b;
     }
 
