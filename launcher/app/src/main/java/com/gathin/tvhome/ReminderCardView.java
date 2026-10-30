@@ -75,13 +75,13 @@ public class ReminderCardView extends View {
         layout = null;
         ref = "";
         if (verses.isEmpty() || width <= 0) return;
-        float room = getHeight() - dp(40) - dp(10);
-        // From today's verse onwards, the first that fits whole, at 15sp or a little smaller. The
+        float room = getHeight() - dp(36) - dp(9);
+        // From today's verse onwards, the first that fits whole, at 13sp or 12sp. The
         // layout keeps its own paint: the label and the reference are drawn with another.
         for (int k = 0; k < verses.size() && layout == null; k++) {
             String[] v = verses.get((day + k) % verses.size());
             String text = "“" + v[0].trim() + "”";
-            for (int sp = 15; sp >= 13; sp--) {
+            for (int sp = 13; sp >= 12; sp--) {
                 TextPaint body = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
                 body.setTypeface(face);
                 body.setTextSize(sp(sp));
@@ -89,7 +89,7 @@ public class ReminderCardView extends View {
                 body.setColor(WHITE);
                 StaticLayout l = StaticLayout.Builder.obtain(text, 0, text.length(), body, width)
                         .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                        .setLineSpacing(dp(2), 1f)
+                        .setLineSpacing(dp(1.5f), 1f)
                         .setIncludePad(false)
                         .build();
                 if (l.getHeight() <= room) {
@@ -104,23 +104,23 @@ public class ReminderCardView extends View {
     @Override
     protected void onDraw(Canvas c) {
         super.onDraw(c);
-        float pad = dp(22);
+        float pad = dp(20);
         int width = (int) (getWidth() - 2 * pad);
         prepare(width);
         paint.setTypeface(face);
-        paint.setTextSize(sp(12));
+        paint.setTextSize(sp(11));
         paint.setFontVariationSettings("'wght' 700");
         paint.setLetterSpacing(0.12f);
         paint.setColor(SOFT);
-        c.drawText("PERINGATAN", pad, dp(29), paint);
+        c.drawText("PERINGATAN", pad, dp(26), paint);
         paint.setLetterSpacing(0f);
         if (layout == null) return;
         // The verse's reference on the label's line, at the right.
-        paint.setTextSize(sp(13));
+        paint.setTextSize(sp(12));
         paint.setFontVariationSettings("'wght' 400");
-        c.drawText(ref, getWidth() - pad - paint.measureText(ref), dp(29), paint);
+        c.drawText(ref, getWidth() - pad - paint.measureText(ref), dp(26), paint);
         c.save();
-        c.translate(pad, dp(40));
+        c.translate(pad, dp(36));
         layout.draw(c);
         c.restore();
     }

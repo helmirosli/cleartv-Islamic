@@ -136,6 +136,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private RumahHeaderView rumahHeader;
     private View rumahRow;
     private boolean rumahHome;
+    /** The clock, cards and top buttons: in Rumah TV's Home they scroll away with the dock. */
+    private View topArea;
     private String prayerZone;
     private boolean prayerRefreshRunning;
     /** The azan over Home at prayer times; null when the theme turns it off or has no prayer_zone. */
@@ -337,6 +339,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             findViewById(R.id.clockRow).setVisibility(View.GONE);
             btnWifi.setVisibility(View.GONE);
             heroShelf.setVisibility(View.INVISIBLE);
+            topArea = findViewById(R.id.topArea);
         }
         if (cfg.azan && !prayerZone.isEmpty()) {
             azan = new Azan(root, () -> {
@@ -420,7 +423,19 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         grid.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
             parkDock();
             updateTopFade();
+            scrollTopArea();
         });
+        if (topArea != null) {
+            // Rumah TV: the grid runs up behind the clock and the cards, so they can scroll up and
+            // away with the dock when you go down into the apps, instead of staying put over them.
+            topArea.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) findViewById(R.id.gridWrap).getLayoutParams();
+                if (lp.topMargin != -v.getHeight()) {
+                    lp.topMargin = -v.getHeight();
+                    findViewById(R.id.gridWrap).setLayoutParams(lp);
+                }
+            });
+        }
 
         // Rows feather out under the top bar instead of being cut off. The fade needs an offscreen
         // layer and draws the grid twice, on every frame of every animation, so it is on only while a
@@ -432,6 +447,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             @Override
             public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
                 updateTopFade();
+                scrollTopArea();
                 if (!glassShown) return;
                 glassTargetY -= dy;
                 glassScrollShift -= dy;
@@ -1129,6 +1145,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private FadeTopFrame gridWrap;
 
+    /**
+     * Rumah TV: moves the clock and the cards with the dock. At rest the dock row starts at the grid's
+     * top padding; however far it has scrolled up from there, they go up too. Once the dock row is
+     * recycled it is far above, and so are they.
+     */
+    private void scrollTopArea() {
+        if (topArea == null) return;
+        RecyclerView.LayoutManager lm = grid.getLayoutManager();
+        RecyclerView.ViewHolder dock = grid.findViewHolderForAdapterPosition(0);
+        float y;
+        if (lm == null || dock == null) {
+            y = grid.getChildCount() > 0 ? -topArea.getBottom() : 0f;
+        } else {
+            y = Math.min(0, lm.getDecoratedTop(dock.itemView) - grid.getPaddingTop());
+            y = Math.max(y, -topArea.getBottom());
+        }
+        if (topArea.getTranslationY() != y) topArea.setTranslationY(y);
+    }
+
     /** Turns the top fade on while any row reaches into its band, with room for a focused tile's zoom. */
     private void updateTopFade() {
         if (gridWrap == null) return;
@@ -1154,6 +1189,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int itemH = AppAdapter.itemHeightPx(AppAdapter.tileHeightPx(AppAdapter.tileWidthPx(inner, COLUMNS, density)), density);
         int dockRow = itemH + (int) ((6 + 12) * density);   // item height plus DockDecoration offsets
         int want = Math.max(0, h - dockRow - itemH * rowsBelowDockSetting - (int) (30 * density));
+        // Rumah TV: the grid starts behind the clock and the cards; the dock never goes up under them.
+        if (topArea != null && topArea.getHeight() > 0) {
+            View wrap = (View) grid.getParent();
+            want = Math.max(want, topArea.getBottom() - wrap.getTop() + (int) (4 * density));
+        }
         if (grid.getPaddingTop() == want) return true;
         grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), grid.getPaddingBottom());
         return false;

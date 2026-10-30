@@ -107,7 +107,7 @@ public class RumahHeaderView extends View {
 
     @Override
     protected void onMeasure(int w, int h) {
-        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), w), Math.round(dp(118)));
+        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), w), Math.round(dp(96)));
     }
 
     @Override
@@ -122,36 +122,36 @@ public class RumahHeaderView extends View {
 
         paint.setShadowLayer(dp(10), 0, dp(2), 0x66000000);
         // The clock, and beside it the time of day in words.
-        float x = draw(c, time, 0, dp(56), 66, WHITE, 400, -0.03f);
-        if (!is24) draw(c, period(h), x + dp(10), dp(56), 20, SOFT, 500, 0f);
+        float x = draw(c, time, 0, dp(46), 52, WHITE, 400, -0.03f);
+        if (!is24) draw(c, period(h), x + dp(8), dp(46), 16, SOFT, 500, 0f);
         String date = DAYS[now.get(Calendar.DAY_OF_WEEK) - 1] + ", " + now.get(Calendar.DAY_OF_MONTH) + " "
                 + MONTHS[now.get(Calendar.MONTH)] + " " + now.get(Calendar.YEAR);
-        draw(c, date, dp(2), dp(87), 19, WHITE, 600, 0f);
-        if (!hijri.isEmpty()) draw(c, hijri, dp(2), dp(110), 15, SOFT, 400, 0f);
+        draw(c, date, dp(2), dp(71), 16, WHITE, 600, 0f);
+        if (!hijri.isEmpty()) draw(c, hijri, dp(2), dp(90), 13, SOFT, 400, 0f);
 
         // The weather card at the top right.
         float right = w;
         if (!temp.isEmpty()) {
             paint.clearShadowLayer();
-            float tw = measure(temp, 32, 500), dw = measure(desc, 16, 600), rw = rain.isEmpty() ? 0 : measure(rain, 13, 400);
-            float cw = dp(20) + tw + dp(12) + Math.max(dw, rw) + dp(20);
-            rect.set(right - cw, dp(4), right, dp(70));
+            float tw = measure(temp, 26, 500), dw = measure(desc, 14, 600), rw = rain.isEmpty() ? 0 : measure(rain, 12, 400);
+            float cw = dp(16) + tw + dp(10) + Math.max(dw, rw) + dp(18);
+            rect.set(right - cw, dp(4), right, dp(58));
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(CARD);
-            c.drawRoundRect(rect, dp(18), dp(18), paint);
+            c.drawRoundRect(rect, dp(16), dp(16), paint);
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeWidth(dp(1));
             paint.setColor(RIM);
-            c.drawRoundRect(rect, dp(18), dp(18), paint);
+            c.drawRoundRect(rect, dp(16), dp(16), paint);
             paint.setStyle(Paint.Style.FILL);
-            float tx = rect.left + dp(20);
-            draw(c, temp, tx, dp(50), 32, WHITE, 500, -0.02f);
-            float dx = tx + tw + dp(12);
+            float tx = rect.left + dp(16);
+            draw(c, temp, tx, dp(41), 26, WHITE, 500, -0.02f);
+            float dx = tx + tw + dp(10);
             if (rain.isEmpty()) {
-                draw(c, desc, dx, dp(43), 16, WHITE, 600, 0f);
+                draw(c, desc, dx, dp(36), 14, WHITE, 600, 0f);
             } else {
-                draw(c, desc, dx, dp(33), 16, WHITE, 600, 0f);
-                draw(c, rain, dx, dp(54), 13, SOFT, 400, 0f);
+                draw(c, desc, dx, dp(28), 14, WHITE, 600, 0f);
+                draw(c, rain, dx, dp(45), 12, SOFT, 400, 0f);
             }
             paint.setShadowLayer(dp(10), 0, dp(2), 0x66000000);
         }
@@ -160,11 +160,11 @@ public class RumahHeaderView extends View {
         if (!placeName.isEmpty()) {
             String where = placeWhere.isEmpty() ? placeName : placeName + " · " + placeWhere;
             float maxW = w * 0.48f;
-            where = fit(where, 13, 500, maxW);
-            draw(c, where, right - measure(where, 13, 500), dp(92), 13, SOFT, 500, 0f);
+            where = fit(where, 12, 500, maxW);
+            draw(c, where, right - measure(where, 12, 500), dp(74), 12, SOFT, 500, 0f);
             if (!credit.isEmpty()) {
-                String cr = fit(credit, 11, 400, maxW);
-                draw(c, cr, right - measure(cr, 11, 400), dp(110), 11, MUTED, 400, 0f);
+                String cr = fit(credit, 10, 400, maxW);
+                draw(c, cr, right - measure(cr, 10, 400), dp(90), 10, MUTED, 400, 0f);
             }
         }
         paint.clearShadowLayer();

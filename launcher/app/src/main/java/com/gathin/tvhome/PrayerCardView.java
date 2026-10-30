@@ -57,35 +57,35 @@ public class PrayerCardView extends View {
     protected void onDraw(Canvas c) {
         super.onDraw(c);
         if (minutes == null || minutes.length == 0) return;
-        float pad = dp(24), w = getWidth();
+        float pad = dp(20), w = getWidth();
         int shown = next >= 0 ? next : 0;
 
         // Header: label, prayer name, its time; the countdown pill on the right.
-        float base = dp(40);
+        float base = dp(34);
         int at = minutes[shown];
         String when = (is24 ? PrayerTimes.format(at, true) : PrayerTimes.format(at, false) + " "
                 + RumahHeaderView.period(at / 60)) + (next < 0 ? " esok" : "");
         String count = PrayerTimes.countdown(left);
-        float cw = measure(count, 15, 700) + dp(32);
+        float cw = measure(count, 13, 700) + dp(26);
         // The label goes first when the line is too long for a narrow card.
-        float rest = measure(PrayerTimes.NAMES[shown], 30, 700) + dp(12) + measure(when, 19, 600);
-        style(12, 700, 0.12f);
-        float label = paint.measureText("AZAN SETERUSNYA") + dp(16);
+        float rest = measure(PrayerTimes.NAMES[shown], 24, 700) + dp(10) + measure(when, 16, 600);
+        style(11, 700, 0.12f);
+        float label = paint.measureText("AZAN SETERUSNYA") + dp(14);
         boolean withLabel = pad + label + rest + dp(16) < w - pad - cw;
         float x = pad;
-        if (withLabel) x = draw(c, "AZAN SETERUSNYA", x, base - dp(3), 12, SOFT, 700, 0.12f) + dp(16);
-        x = draw(c, PrayerTimes.NAMES[shown], x, base + dp(2), 30, GOLD, 700, 0f) + dp(12);
-        draw(c, when, x, base, 19, WHITE, 600, 0f);
-        rect.set(w - pad - cw, base - dp(24), w - pad, base + dp(6));
+        if (withLabel) x = draw(c, "AZAN SETERUSNYA", x, base - dp(2), 11, SOFT, 700, 0.12f) + dp(14);
+        x = draw(c, PrayerTimes.NAMES[shown], x, base + dp(2), 24, GOLD, 700, 0f) + dp(10);
+        draw(c, when, x, base, 16, WHITE, 600, 0f);
+        rect.set(w - pad - cw, base - dp(20), w - pad, base + dp(6));
         paint.setColor(GOLD);
-        c.drawRoundRect(rect, dp(15), dp(15), paint);
-        draw(c, count, rect.left + dp(16), base - dp(4), 15, INK, 700, 0f);
+        c.drawRoundRect(rect, dp(13), dp(13), paint);
+        draw(c, count, rect.left + dp(13), base - dp(2.5f), 13, INK, 700, 0f);
 
         // Timeline: five stops at the centres of five equal columns, and now as a ring on the line.
-        float lineY = dp(70), inner = w - 2 * pad;
+        float lineY = dp(61), inner = w - 2 * pad;
         float first = pad + inner / 10f, last = pad + inner * 9f / 10f;
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(dp(4));
+        paint.setStrokeWidth(dp(3.5f));
         paint.setColor(FAINT);
         c.drawLine(first, lineY, last, lineY, paint);
         float nowX = nowX(first, last);
@@ -99,33 +99,33 @@ public class PrayerCardView extends View {
             paint.setStyle(Paint.Style.FILL);
             if (isNext) {
                 paint.setColor(GOLD);
-                c.drawCircle(cx, lineY, dp(9), paint);
+                c.drawCircle(cx, lineY, dp(8), paint);
             } else if (past) {
                 paint.setColor(MUTED);
-                c.drawCircle(cx, lineY, dp(7), paint);
+                c.drawCircle(cx, lineY, dp(6), paint);
             } else {
                 paint.setColor(0xFF1B2533);
-                c.drawCircle(cx, lineY, dp(7), paint);
+                c.drawCircle(cx, lineY, dp(6), paint);
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(dp(2));
                 paint.setColor(MUTED);
-                c.drawCircle(cx, lineY, dp(7), paint);
+                c.drawCircle(cx, lineY, dp(6), paint);
                 paint.setStyle(Paint.Style.FILL);
             }
-            center(c, PrayerTimes.NAMES[i], cx, lineY + dp(31), 15, isNext ? GOLD : SOFT, isNext ? 700 : 500);
+            center(c, PrayerTimes.NAMES[i], cx, lineY + dp(26), 13, isNext ? GOLD : SOFT, isNext ? 700 : 500);
             String t = PrayerTimes.format(minutes[i], is24) + (is24 ? "" : " " + shortPeriod(minutes[i] / 60));
-            center(c, t, cx, lineY + dp(50), 13, isNext ? WHITE : MUTED, isNext ? 600 : 400);
+            center(c, t, cx, lineY + dp(42), 12, isNext ? WHITE : MUTED, isNext ? 600 : 400);
         }
 
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(0xFF0C1620);
-        c.drawCircle(nowX, lineY, dp(8), paint);
+        c.drawCircle(nowX, lineY, dp(7), paint);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(dp(3));
+        paint.setStrokeWidth(dp(2.5f));
         paint.setColor(WHITE);
-        c.drawCircle(nowX, lineY, dp(8), paint);
+        c.drawCircle(nowX, lineY, dp(7), paint);
         paint.setStyle(Paint.Style.FILL);
-        center(c, "KINI", nowX, lineY - dp(13), 10, WHITE, 700);
+        center(c, "KINI", nowX, lineY - dp(11), 9, WHITE, 700);
     }
 
     private static String shortPeriod(int hour) {

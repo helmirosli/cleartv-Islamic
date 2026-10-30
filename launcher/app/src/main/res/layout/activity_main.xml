@@ -78,6 +78,7 @@
         android:paddingTop="26dp">
 
         <RelativeLayout
+            android:id="@+id/topArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -99,7 +100,7 @@
                     android:id="@+id/rumahHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:focusable="false"
                     android:importantForAccessibility="no"
                     android:visibility="gone" />
@@ -263,7 +264,7 @@
             <LinearLayout
                 android:id="@+id/rumahRow"
                 android:layout_width="match_parent"
-                android:layout_height="124dp"
+                android:layout_height="112dp"
                 android:layout_below="@id/leftBlock"
                 android:layout_marginTop="14dp"
                 android:orientation="horizontal"
