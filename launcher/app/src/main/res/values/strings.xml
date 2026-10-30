@@ -44,4 +44,7 @@
     <string name="card_state_new_label">New name</string>
     <string name="tile_move">Move</string>
     <string name="tile_app_info">App info</string>
+    <!-- Rumah TV -->
+    <string name="gate_name" translatable="false">Rumah TV: kuiz sebelum YouTube</string>
+    <string name="gate_description" translatable="false">Meminta anak menjawab kuiz pendek sebelum YouTube dibuka.</string>
 </resources>

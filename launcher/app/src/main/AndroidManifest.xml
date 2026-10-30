@@ -94,6 +94,29 @@
                 android:resource="@xml/home_key_service" />
         </service>
 
+        <!-- Rumah TV: the quiz before a guarded app (YouTube), in its own task so finishing it goes back
+             to that app. GateService puts it in front; enabled by build-and-install.sh (GATE_SERVICE=1). -->
+        <activity
+            android:name=".QuizActivity"
+            android:exported="false"
+            android:taskAffinity="com.rumahtv.quiz"
+            android:launchMode="singleTask"
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"
+            android:screenOrientation="landscape" />
+        <service
+            android:name=".GateService"
+            android:exported="false"
+            android:label="@string/gate_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/gate_service" />
+        </service>
+
         <!-- Screensaver: pick it in Settings, or `settings put secure screensaver_components
              com.gathin.tvhome/.ClockDream` over adb. -->
         <service
