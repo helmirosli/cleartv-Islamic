@@ -246,6 +246,19 @@
                 android:focusable="false"
                 android:importantForAccessibility="yes"
                 android:visibility="gone" />
+
+            <!-- Rumah TV: the next-azan card (PrayerCardView) takes the prayer row's place when shown. -->
+            <com.gathin.tvhome.PrayerCardView
+                android:id="@+id/prayerCard"
+                android:layout_width="640dp"
+                android:layout_height="96dp"
+                android:layout_below="@id/leftBlock"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/prayer_bg"
+                android:focusable="false"
+                android:importantForAccessibility="yes"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <!-- The wrapper clips at the grid's edge; the grid itself must not clip so scaled tiles can overflow their cells. -->

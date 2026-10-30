@@ -25,6 +25,8 @@ import java.util.List;
  * "quiz_questions": 3                               questions per quiz
  * "parent_pin": "1234"                              4-digit PIN that opens them without a quiz
  * "children": [{"name": "Adik", "level": 1, "color": "#E58FD0"}, ...]
+ * "weather": true | false                           the weather on the next-azan card (default true)
+ * "weather_lat": 2.69, "weather_lon": 101.75        where (default Sepang)
  * </pre>
  */
 final class RumahConfig {
@@ -49,9 +51,12 @@ final class RumahConfig {
     final int quizQuestions;
     final String parentPin;
     final List<Child> children;
+    final boolean weather;
+    final double weatherLat, weatherLon;
 
     private RumahConfig(String wakeForAzan, boolean quiz, List<String> quizApps, int quizUnlockMinutes,
-                        int quizQuestions, String parentPin, List<Child> children) {
+                        int quizQuestions, String parentPin, List<Child> children,
+                        boolean weather, double weatherLat, double weatherLon) {
         this.wakeForAzan = wakeForAzan;
         this.quiz = quiz;
         this.quizApps = quizApps;
@@ -59,6 +64,9 @@ final class RumahConfig {
         this.quizQuestions = quizQuestions;
         this.parentPin = parentPin;
         this.children = children;
+        this.weather = weather;
+        this.weatherLat = weatherLat;
+        this.weatherLon = weatherLon;
     }
 
     /** True when the azan for prayer {@code index} (PrayerTimes.NAMES order) may wake the TV. */
@@ -107,7 +115,10 @@ final class RumahConfig {
         return new RumahConfig(wake, o.optBoolean("quiz", true), Collections.unmodifiableList(apps),
                 clamp(o.optInt("quiz_unlock_minutes", 30), 5, 240),
                 clamp(o.optInt("quiz_questions", 3), 1, 10),
-                pin, Collections.unmodifiableList(kids));
+                pin, Collections.unmodifiableList(kids),
+                o.optBoolean("weather", true),
+                coord(o.optDouble("weather_lat", 2.69), -90, 90, 2.69),
+                coord(o.optDouble("weather_lon", 101.75), -180, 180, 101.75));
     }
 
     private static final int[] DEFAULT_COLORS = {0xFF7FB3F5, 0xFF8DD27A, 0xFFE58FD0, 0xFFF2A645, 0xFF45BDC5};
@@ -118,6 +129,10 @@ final class RumahConfig {
         } catch (IllegalArgumentException e) {
             return fallback;
         }
+    }
+
+    private static double coord(double v, double min, double max, double fallback) {
+        return Double.isNaN(v) || v < min || v > max ? fallback : v;
     }
 
     private static int clamp(int v, int min, int max) {

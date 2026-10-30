@@ -131,6 +131,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean shamsi;
     /** Today's prayer times under the clock (PrayerTimes); hidden while prayerZone is empty. */
     private TextView prayerRow;
+    private PrayerCardView prayerCard;
     private String prayerZone;
     private boolean prayerRefreshRunning;
     /** The azan over Home at prayer times; null when the theme turns it off or has no prayer_zone. */
@@ -320,6 +321,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             date.setPadding(0, (int) (4 * density), 0, 0);
         }
         prayerRow = findViewById(R.id.prayerRow);
+        prayerCard = findViewById(R.id.prayerCard);
         prayerZone = cfg.prayerZone;
         if (cfg.azan && !prayerZone.isEmpty()) {
             azan = new Azan(root, () -> {
@@ -1525,6 +1527,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         PrayerTimes.Day today = PrayerTimes.day(this, prayerZone, todayKey);
         if (today == null) {
             prayerRow.setVisibility(View.GONE);
+            prayerCard.setVisibility(View.GONE);
             if (!prayerRefreshRunning && PrayerTimes.due(this, prayerZone, todayKey)) {
                 prayerRefreshRunning = true;
                 final String zone = prayerZone;
@@ -1573,7 +1576,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         b.append(PrayerTimes.NAMES[next >= 0 ? next : 0]).append(" ").append(PrayerTimes.countdown(left));
         b.setSpan(new android.text.style.ForegroundColorSpan(bright), start, b.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         prayerRow.setText(b);
-        prayerRow.setVisibility(View.VISIBLE);
+        // Rumah TV: the next-azan card in the row's place, with the weather.
+        prayerCard.update(today.minutes, next, nowMin, left, is24, Weather.line(this), today.hijri);
+        prayerCard.setVisibility(View.VISIBLE);
+        prayerRow.setVisibility(View.GONE);
+        Weather.refreshIfDue(this, this::updatePrayerTimes);
     }
 
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */
