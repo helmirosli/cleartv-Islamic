@@ -75,7 +75,7 @@ public class ReminderCardView extends View {
         layout = null;
         ref = "";
         if (verses.isEmpty() || width <= 0) return;
-        float room = getHeight() - dp(46) - dp(12);
+        float room = getHeight() - dp(40) - dp(10);
         // From today's verse onwards, the first that fits whole, at 15sp or a little smaller. The
         // layout keeps its own paint: the label and the reference are drawn with another.
         for (int k = 0; k < verses.size() && layout == null; k++) {
@@ -112,15 +112,15 @@ public class ReminderCardView extends View {
         paint.setFontVariationSettings("'wght' 700");
         paint.setLetterSpacing(0.12f);
         paint.setColor(SOFT);
-        c.drawText("PERINGATAN", pad, dp(32), paint);
+        c.drawText("PERINGATAN", pad, dp(29), paint);
         paint.setLetterSpacing(0f);
         if (layout == null) return;
         // The verse's reference on the label's line, at the right.
         paint.setTextSize(sp(13));
         paint.setFontVariationSettings("'wght' 400");
-        c.drawText(ref, getWidth() - pad - paint.measureText(ref), dp(32), paint);
+        c.drawText(ref, getWidth() - pad - paint.measureText(ref), dp(29), paint);
         c.save();
-        c.translate(pad, dp(46));
+        c.translate(pad, dp(40));
         layout.draw(c);
         c.restore();
     }
