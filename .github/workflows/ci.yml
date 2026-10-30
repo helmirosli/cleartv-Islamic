@@ -59,7 +59,15 @@ jobs:
           RUMAHTV_KEYSTORE_PASSWORD: ${{ secrets.RUMAHTV_KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon testReleaseUnitTest assembleRelease
+          set +e
+          ./gradlew --no-daemon testReleaseUnitTest assembleRelease 2>&1 | tee "$RUNNER_TEMP/build.log"
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            # Compile errors as annotations: readable from the API when the raw log is not.
+            grep -E "error:|^e: |What went wrong|FAILED|Exception" -A3 "$RUNNER_TEMP/build.log" | head -80 \
+              | while IFS= read -r line; do echo "::error::${line//%/%25}"; done
+          fi
+          exit "$status"
       - name: The launcher stays small
         run: |
           size=$(stat -c %s launcher/app/build/outputs/apk/release/app-release.apk)

@@ -74,8 +74,13 @@ final class AzanAlarm {
             if (ACTION.equals(intent.getAction())) {
                 PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
                 boolean screenOn = pm == null || pm.isInteractive();
+                // Rumah TV: with the screen off, wake it for the azan (Subuh by default); Home then
+                // gives it full screen at its next check.
+                if (!screenOn && pm != null) {
+                    RumahWake.maybeWake(ctx, pm, Config.load(ctx).prayerZone);
+                }
                 // Home and the screensaver give it themselves; with the screen off, nobody hears it.
-                if (!Azan.homeInFront() && screenOn) {
+                else if (!Azan.homeInFront() && screenOn) {
                     Intent svc = new Intent(ctx, AzanOverlay.class);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ctx.startForegroundService(svc);
                     else ctx.startService(svc);
