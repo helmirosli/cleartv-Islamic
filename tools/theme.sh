@@ -19,9 +19,12 @@ PKG="${PKG:-com.rumahtv.home}"
 NS=com.gathin.tvhome
 DIR=/sdcard/Android/data/$PKG/files
 tv() { "$PY" -I tv.py "$@"; }
+# Restarts Home. A force-stop also takes the launcher's accessibility services (the quiz's
+# GateService and the key services) off Android's enabled list, so the list is put back after it.
+RESTART="a=\$(settings get secure enabled_accessibility_services); am force-stop $PKG; sleep 2; case \"\$a\" in *$PKG/*) settings put secure enabled_accessibility_services \"\$a\"; settings put secure accessibility_enabled 1 ;; esac; am start -n $PKG/$NS.MainActivity >/dev/null"
 
 if [ "${1:-}" = --reset ]; then
-  tv "rm -rf $DIR/config.json $DIR/wallpaper.jpg $DIR/wallpapers $DIR/azan.mp3 $DIR/azan-subuh.mp3 $DIR/masjid; am force-stop $PKG; am start -n $PKG/$NS.MainActivity >/dev/null; echo reset" | tail -n 1
+  tv "rm -rf $DIR/config.json $DIR/wallpaper.jpg $DIR/wallpapers $DIR/azan.mp3 $DIR/azan-subuh.mp3 $DIR/masjid; $RESTART; echo reset" | tail -n 1
   exit 0
 fi
 THEME="${THEME_ARG:?usage: theme.sh <theme folder> | --reset}"
@@ -62,5 +65,5 @@ if [ -d "$THEME/wallpapers" ]; then
     "$PY" -I b64push.py "$f" "$DIR/wallpapers/$(basename "$f")" | tail -n 1
   done
 fi
-tv "am force-stop $PKG; am start -n $PKG/$NS.MainActivity >/dev/null; echo applied" | tail -n 1
+tv "$RESTART; echo applied" | tail -n 1
 echo "Theme $(basename "$THEME") is on the TV. Undo with: tools/theme.sh --reset"
