@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -39,8 +40,21 @@ jobs:
         with:
           packages: platforms;android-34 build-tools;34.0.0
       - uses: gradle/actions/setup-gradle@v4
+      - name: Rumah TV signing key (optional repository secret)
+        env:
+          KS_B64: ${{ secrets.RUMAHTV_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/rumahtv.jks"
+            echo "RUMAHTV_KEYSTORE=$RUNNER_TEMP/rumahtv.jks" >> "$GITHUB_ENV"
+            echo "signing with the Rumah TV key"
+          else
+            echo "::warning::RUMAHTV_KEYSTORE_B64 is not set: this APK uses a throwaway debug key and will not install over an earlier build"
+          fi
       - name: Unit tests and release build
         working-directory: launcher
+        env:
+          RUMAHTV_KEYSTORE_PASSWORD: ${{ secrets.RUMAHTV_KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon testReleaseUnitTest assembleRelease
@@ -49,3 +63,9 @@ jobs:
           size=$(stat -c %s launcher/app/build/outputs/apk/release/app-release.apk)
           echo "release APK: $((size / 1024)) KB"
           test "$size" -lt 409600 || { echo "APK is over 400 KB; the launcher targets 1 GB TVs, keep it small"; exit 1; }
+      - name: Keep the APK for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: rumah-tv-apk
+          path: launcher/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30

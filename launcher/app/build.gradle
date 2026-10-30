@@ -7,11 +7,25 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId 'com.gathin.tvhome'
+        applicationId 'com.rumahtv.home'
         minSdk 26
         targetSdk 34
         versionCode 4
-        versionName '2.3'
+        versionName '2.3-rumah.1'
+    }
+
+    // Rumah TV: a fixed key from the environment (CI secret) so every build installs over the last one.
+    // Without it the build falls back to the debug key, as upstream does.
+    def rumahKs = System.getenv('RUMAHTV_KEYSTORE')
+    signingConfigs {
+        rumah {
+            if (rumahKs && file(rumahKs).exists()) {
+                storeFile file(rumahKs)
+                storePassword System.getenv('RUMAHTV_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('RUMAHTV_KEY_ALIAS') ?: 'rumahtv'
+                keyPassword System.getenv('RUMAHTV_KEY_PASSWORD') ?: System.getenv('RUMAHTV_KEYSTORE_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
@@ -21,7 +35,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
-            signingConfig signingConfigs.debug
+            signingConfig (rumahKs && file(rumahKs).exists()) ? signingConfigs.rumah : signingConfigs.debug
         }
     }
 
