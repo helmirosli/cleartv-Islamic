@@ -59,6 +59,9 @@ final class IslamicDream {
     private TextView photoCaption, photoCredit;
     private int photoIndex = -1, screenW, screenH;
     private boolean decoding;
+    /** Rumah TV's face (RumahIdleView) in place of the centred one, unless the theme sets rumah_home false. */
+    private final boolean rumah;
+    private RumahIdleView idle;
 
     IslamicDream(android.service.dreams.DreamService dream, String zone) {
         this.ctx = dream;
@@ -104,7 +107,14 @@ final class IslamicDream {
         arabic = dream.findViewById(R.id.islamicArabic);
         meaning = dream.findViewById(R.id.islamicMeaning);
         ref = dream.findViewById(R.id.islamicRef);
+        rumah = RumahConfig.load(dream).home;
         loadPhotos(dream, root);
+        if (rumah) {
+            content.setVisibility(View.GONE);
+            idle = new RumahIdleView(dream, zone);
+            root.addView(idle, root.indexOfChild(content), new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
         loadVerses();
         verseIndex = verses.isEmpty() ? 0 : random.nextInt(verses.size());
         showVerse();
@@ -184,10 +194,12 @@ final class IslamicDream {
     /** Once a minute: the dates and prayer times, the lattice drifted a little, a new verse when due. */
     void minute() {
         update();
+        if (idle != null) idle.invalidate();
         pattern.drift(random.nextFloat() * 6f - 3f, random.nextFloat() * 6f - 3f);
         if (android.os.SystemClock.elapsedRealtime() - verseShownAt >= VERSE_MS && verses.size() > 1) {
             verseIndex = (verseIndex + 1) % verses.size();
             showVerse();
+            if (idle != null) idle.nextVerse();
             showNextPhoto();
         }
     }
@@ -283,7 +295,8 @@ final class IslamicDream {
         View dim = new View(dream);
         dim.setBackground(new android.graphics.drawable.GradientDrawable(
                 android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xB8020806, 0x99020806, 0xA6020806, 0xE6020806}));
+                rumah ? new int[]{0x8C050912, 0x33050912, 0x59050912, 0xCC050912}
+                        : new int[]{0xB8020806, 0x99020806, 0xA6020806, 0xE6020806}));
         root.addView(dim, 3, new FrameLayout.LayoutParams(full));
         // Where the photo is, and who took it, in the bottom right corner.
         LinearLayout box = new LinearLayout(dream);
